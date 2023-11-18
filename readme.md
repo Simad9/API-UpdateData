@@ -1,7 +1,7 @@
 # ITC::Back-End Tugas-4
 
 Perintah : Mengupdate database, data yang diubah fullName, nim, angkatan, dan profilePicture\
-\
+
 
 ## Setup Project
 

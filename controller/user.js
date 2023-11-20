@@ -361,22 +361,64 @@ const editUserAccount = async (req, res, next) => {
 
     // ---- TUGASNYA ----
     // image url bakal diupdate kedalam databse user bersangkutan
+
     // ngambil data dari form-data
-    const { fullName, nim, angkatan } = req.body;
-    // update ke database
-    await User.update(
-      { profilePicture: imageUrl, fullName, nim, angkatan },
-      { where: { id: decoded.userId } }
+    const { fullName, nim, angkatan, division } = req.body;
+
+    // Mengambil data division
+    const user_division = await Division.findOne({
+      where: {
+        name: division,
+      },
+    });
+
+    // Melakukan update pada tabel User + divisionId nya juga nyesuain
+    const updateUser = await User.update(
+      {
+        fullName,
+        angkatan,
+        nim,
+        divisionId: user_division.id,
+        profilePicture: imageUrl,
+      },
+      {
+        where: {
+          //dengan id = deocded.userId
+          id: decoded.userId,
+        },
+      }
     );
 
+    // Mengambil data untuk ditaruh di response nya
+    const user = await User.findOne({
+      include: {
+        model: Division,
+        attributes: ["name"],
+      },
+      where: {
+        id: decoded.userId,
+      },
+    });
+
+    // Hasil responsenya, langsung disini, bisa di const user sebenarnya
     res.status(200).json({
       status: "Succes",
-      message: "Data changed successfully",
+      message: "Succesfully edit user data",
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        nim: user.nim,
+        angkatan: user.angkatan,
+        profilePicture: user.profilePicture,
+        devisi: {
+          name: user.division.name,
+        },
+      },
     });
   } catch (error) {
     res.status(error.statusCode || 500).json({
       status: "Error",
-      message: error,
+      message: error.message,
     });
   }
 };
